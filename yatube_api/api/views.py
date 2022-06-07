@@ -1,23 +1,27 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
 from rest_framework.pagination import LimitOffsetPagination
 
 
-from posts.models import Post, Group, Comment
-from .serializers import PostSerializer, GroupSerializer, CommentSerializer
+from posts.models import Post, Group, Comment, Follow
+from .serializers import PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer
+from .permissions import IsAuthorOrReadOnlyPermission
 
 
 class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
+    # Только автор вправе изменять посты
     pagination_class = LimitOffsetPagination
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-
+    serializer_class = GroupSerializer    
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -42,4 +46,18 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = Post.objects.get(id=post_id)
         serializer.save(author=self.request.user, post=post)
 
+class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
+    # Наследуем от миксинов с нужными методами 
+    # и дженерика, поскольку роутер с миксинами не работает
+    serializer_class = FollowSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        new_queryset = Follow.objects.filter(user=self.request.user)
+        # меняем queryset с которым будет работать класс
+        # Нам нужны не все комментарии, а только к определенному посту
+        return new_queryset
+
+    def perform_create(self, serializer):
+        print(serializer.is_valid())
+        serializer.save(user=self.request.user)

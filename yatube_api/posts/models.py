@@ -35,3 +35,27 @@ class Comment(models.Model):
     text = models.TextField()
     created = models.DateTimeField(
         'Дата добавления', auto_now_add=True, db_index=True)
+
+class Follow(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='follower',
+        verbose_name='подписчик'
+    )
+    following = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='following',
+        verbose_name='автор',
+    )
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=~models.Q(following=models.F('user')), name='author_not_user'),
+            models.UniqueConstraint(
+                fields=['user', 'following'], name='unique_follow')]
+
+    def __str__(self):
+        return f'User {self.user} is subscribed on {self.following}'
