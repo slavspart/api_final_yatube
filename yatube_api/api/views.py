@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, mixins
+from rest_framework import viewsets, permissions, mixins, filters
 from rest_framework.pagination import LimitOffsetPagination
 
 
@@ -25,7 +25,7 @@ class GroupViewSet(viewsets.ReadOnlyModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAuthorOrReadOnlyPermission,)
 
     def get_queryset(self):
         post_id = self.kwargs.get('post_id')
@@ -51,6 +51,8 @@ class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.Gen
     # и дженерика, поскольку роутер с миксинами не работает
     serializer_class = FollowSerializer
     permission_classes = (permissions.IsAuthenticated,)
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('following__username',)
 
     def get_queryset(self):
         new_queryset = Follow.objects.filter(user=self.request.user)
@@ -59,5 +61,5 @@ class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.Gen
         return new_queryset
 
     def perform_create(self, serializer):
-        print(serializer.is_valid())
         serializer.save(user=self.request.user)
+        

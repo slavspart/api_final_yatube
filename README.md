@@ -1,23 +1,34 @@
+# api_final
+Учебный проект API для соцсети Yatube от студента 10+ когорты курса Python
+Яндекс Практикума Михайлова Святослава.
+
+### Зависимости:
+Проект основан на следующих технологиях:
+* python 3.7.9
+* Django 2.2.16
+* djangorestframework 3.12.4
+
+
 ### Как запустить проект:
 
 Клонировать репозиторий и перейти в него в командной строке:
 
 ```
-git clone https://github.com/yandex-praktikum/kittygram2plus.git
+git clone https://github.com/slavspart/api_final_yatube.git
 ```
 
 ```
-cd kittygram2plus
+cd api_final_yatube
 ```
 
 Cоздать и активировать виртуальное окружение:
 
 ```
-python3 -m venv env
+python3 -m venv venv
 ```
 
 ```
-source env/bin/activate
+source venv/bin/activate или source venv/Scripts/activate
 ```
 
 ```
@@ -42,5 +53,4 @@ python3 manage.py migrate
 python3 manage.py runserver
 ```
 
-# api_final
-api final
+
