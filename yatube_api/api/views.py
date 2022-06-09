@@ -3,7 +3,8 @@ from rest_framework.pagination import LimitOffsetPagination
 
 
 from posts.models import Post, Group, Comment, Follow
-from .serializers import PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer
+from .serializers import (
+    PostSerializer, GroupSerializer, CommentSerializer, FollowSerializer)
 from .permissions import IsAuthorOrReadOnlyPermission
 
 
@@ -20,8 +21,9 @@ class PostViewSet(viewsets.ModelViewSet):
 
 class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Group.objects.all()
-    serializer_class = GroupSerializer    
+    serializer_class = GroupSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -46,8 +48,12 @@ class CommentViewSet(viewsets.ModelViewSet):
         post = Post.objects.get(id=post_id)
         serializer.save(author=self.request.user, post=post)
 
-class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    # Наследуем от миксинов с нужными методами 
+
+class FollowViewSet(
+        mixins.CreateModelMixin,
+        mixins.ListModelMixin,
+        viewsets.GenericViewSet):
+    # Наследуем от миксинов с нужными методами
     # и дженерика, поскольку роутер с миксинами не работает
     serializer_class = FollowSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -62,4 +68,3 @@ class FollowViewSet(mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.Gen
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-        

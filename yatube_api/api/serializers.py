@@ -33,17 +33,18 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(serializers.ModelSerializer):
     user = serializers.SlugRelatedField(
-            many=False, 
-            read_only=True, 
-            slug_field='username', 
-            default=serializers.CurrentUserDefault())
+        many=False,
+        read_only=True,
+        slug_field='username',
+        default=serializers.CurrentUserDefault())
     # передаем по умолчанию текущего юзера, чтобы работал
     # UniqueTogetherValidator(проверяет отсутствие повторных подписок)
-    following=serializers.SlugRelatedField(slug_field='username', queryset=User.objects.all())
+    following = serializers.SlugRelatedField(
+        slug_field='username', queryset=User.objects.all())
     # указываем queryset c объектами связанной модели, чтобы сериалайзер
     # взял оттуда нужный объект по полю username при Post запросе
     # запись идет через метод to_internal_value поля
-    
+
     class Meta:
         fields = ('user', 'following')
         model = Follow
@@ -58,10 +59,7 @@ class FollowSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if self.context.get('request').user == data['following']:
-        # Проверяем, чтобы подписчик не совпадал с автором
+            # Проверяем, чтобы подписчик не совпадал с автором
             raise serializers.ValidationError(
                 'You cannot follow yourself')
-        return data 
-
-
-   
+        return data
